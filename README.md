@@ -1,4 +1,4 @@
-# ATHMultiSelectionSegmentedControl
+# Kitura-RateLimit
 
 ![macOS](https://img.shields.io/badge/os-macOS-green.svg?style=flat)
 ![Linux](https://img.shields.io/badge/os-linux-green.svg?style=flat)
@@ -11,6 +11,9 @@ Kitura middleware for basic request rate-limiting. Useful for limiting repeated/
 
 ## Installation
 Add `KituraRateLimit` as a dependency in your project's `Package.swift` file and `import KituraRateLimit` wherever appropriate in your project files.
+
+## Custom Key-Value Stores
+Currently `KituraRateLimit` uses a thread-safe in-memory key-value store on top of `Kitura-Cache`. Thus, the hits per ip dataset cannot be shared by other servers and processes. In case you need that, I recommend writing a custom keystore conforming to `RateLimitKeyStore` using `kitura-redis` and the Redis key-value database.
 
 ## Usage
 ```swift
