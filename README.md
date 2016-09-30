@@ -55,13 +55,9 @@ Kitura.addHTTPServer(onPort: 3000, with: router)
 Kitura.run()
 ```
 
-## Example
+## Contributors
 
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
-
-## Author
-
-attheodo, at@atworks.gr
+- attheodo, at@atworks.gr
 
 ## License
 
