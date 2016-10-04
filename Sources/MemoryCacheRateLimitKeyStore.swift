@@ -16,7 +16,7 @@ public class MemoryCacheRateLimitKeyStore: RateLimitKeyStore {
     
     private var memoryCache: KituraCache?
     
-    public func setup() {
+    public required init() {
         memoryCache = KituraCache(defaultTTL: 0, checkFrequency: 6000)
     }
     

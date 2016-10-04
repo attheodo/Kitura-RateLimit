@@ -14,7 +14,7 @@ import Foundation
 public protocol RateLimitKeyStore {
     
     /// Perform any initialization of the key-store
-    func setup()
+    init()
     
     /**
       Increments the number of hits for a key and returns the value

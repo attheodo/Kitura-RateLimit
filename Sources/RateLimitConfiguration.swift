@@ -17,7 +17,7 @@ public struct RateLimitConfig {
     let includeHeaders: Bool
     let handler: RouterHandler
     
-    static var defaultConfig: RateLimitConfig {
+    public static var defaultConfig: RateLimitConfig {
         return self.init()
     }
     

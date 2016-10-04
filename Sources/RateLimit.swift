@@ -36,8 +36,6 @@ public class RateLimit: RouterMiddleware {
         self.shouldIncludeHeaders = config.includeHeaders
         self.handler = config.handler
         
-        self.keyStore.setup()
-        
         startFlushTimer()
     
     }
