@@ -17,7 +17,11 @@ public struct RateLimitConfig {
     let includeHeaders: Bool
     let handler: RouterHandler
     
-    init(window: Int = 10,
+    static var defaultConfig: RateLimitConfig {
+        return self.init()
+    }
+    
+    public init(window: Int = 10,
         maxRequests: Int = 100,
         includeHeaders: Bool = true,
         handler: @escaping RouterHandler = { request, response, next in
