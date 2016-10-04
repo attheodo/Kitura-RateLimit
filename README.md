@@ -16,46 +16,43 @@ Add `KituraRateLimit` as a dependency in your project's `Package.swift` file and
 Currently `KituraRateLimit` uses a thread-safe in-memory key-value store on top of `Kitura-Cache`. Thus, the hits per ip dataset cannot be shared by other servers and processes. In case you need that, I recommend writing a custom keystore conforming to `RateLimitKeyStore` using `kitura-redis` and the Redis key-value database.
 
 ## Usage
+
+Check `/Example` application. 
+
 ```swift
+import Kitura
 import KituraRateLimit
 
-private var customHandler: RouterHandler = { request, response, next in
+let router = Router()
 
-    let message = "Oh ma g0d you're such a hax0r"
-
-    if let _ = request.accepts(type: "text/html") {
-        response.headers["Content-Type"] = "text/plain; charset=utf-8"
-        try response.send(message).status(.tooManyRequests).end()
-    } else if let _ = request.accepts(type: "application/json") {
-        try response.send(json: JSON(["error": message])).status(.tooManyRequests).end()
-    }
-
-    try response.status(.tooManyRequests).end()
-
-}
-
-let config = [
-    .window(10),               // The time window in seconds
-    .maxRequests(100),         // Max number of requests per time window
-    .includeHeaders(true),     // Include response headers showing limit and current usage
-    .handler(customHandler)    // A custom response handler to use when limit has reached
-]
-
-let rateLimitMiddleware = RateLimit(config: config, keyStore: MemoryCacheRateLimitKeyStore())
-
-// apply to all routes
-router.all(middleware: rateLimitMiddleware)
-
-// demo route
+// Apply rate limiting with default configuration in "/" path
+router.get("/", allowPartialMatch: false, middleware: RateLimit(config: .defaultConfig, keyStore: MemoryCacheRateLimitKeyStore()))
 router.get("/") {
     request, response, next in
 
-    try response.status(.OK).send("I am scrape resistant!").end()
+    try response.status(.OK).send("Landing Page").end()
+
+}
+
+// Custom rate limit configuration for "/hello"
+extension RateLimitConfig {
+    static var helloRouteConfig: RateLimitConfig {
+        return RateLimitConfig(window: 100, maxRequests: 10, includeHeaders: true)
+    }
+}
+
+// Apply rate limiting with custom configuratioon in "/hello"
+router.get("/hello", allowPartialMatch: false, middleware: RateLimit(config: .helloRouteConfig, keyStore: MemoryCacheRateLimitKeyStore()))
+router.get("/hello") {
+    request, response, next in
+
+    try response.status(.OK).send("Hello there!").end()
 
 }
 
 Kitura.addHTTPServer(onPort: 3000, with: router)
 Kitura.run()
+
 ```
 
 ## Contributors
