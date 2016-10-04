@@ -14,30 +14,10 @@ import Dispatch
 
 public class RateLimit: RouterMiddleware {
     
-    // Default options
-    
-    // Allow only 100 requests every 10 seconds
-    private var window: Int = 10
-    private var maxRequests: Int = 100
-    
-    /// Sent headers showing max & current requests by default
-    private var shouldIncludeHeaders: Bool = true
-    
-    /// Default response handler
-    private var handler: RouterHandler = { request, response, next in
-        
-        let message = "Too many requests"
-        
-        if let _ = request.accepts(type: "text/html") {
-            response.headers["Content-Type"] = "text/plain; charset=utf-8"
-            try response.send(message).status(.tooManyRequests).end()
-        } else if let _ = request.accepts(type: "application/json") {
-            try response.send(json: JSON(["error": message])).status(.tooManyRequests).end()
-        }
-        
-        try response.status(.tooManyRequests).end()
-        
-    }
+    private var window: Int
+    private var maxRequests: Int
+    private var shouldIncludeHeaders: Bool
+    private var handler: RouterHandler
     
     /// A timer to flush the key-store every <window> seconds
     private var timer: DispatchSourceTimer?
@@ -46,25 +26,15 @@ public class RateLimit: RouterMiddleware {
     /// The key-value store to use to store request hits per ip
     private var keyStore: RateLimitKeyStore
     
-    public init(config: RateLimitConfiguration = [], keyStore: RateLimitKeyStore) {
+    public init(config: RateLimitConfig, keyStore: RateLimitKeyStore) {
         
         self.keyStore = keyStore
         self.timerQueue = DispatchQueue(label: "com.kitura-rate-limit.timerQueue")
         
-        for option in config {
-            
-            switch option {
-            case let .window(window):
-                self.window = window
-            case let .maxRequests(maxRequests):
-                self.maxRequests = maxRequests
-            case let .includeHeaders(shouldIncludeHeaders):
-                self.shouldIncludeHeaders = shouldIncludeHeaders
-            case let .handler(handler):
-                self.handler = handler
-            }
-            
-        }
+        self.window = config.window
+        self.maxRequests = config.maxRequests
+        self.shouldIncludeHeaders = config.includeHeaders
+        self.handler = config.handler
         
         self.keyStore.setup()
         
