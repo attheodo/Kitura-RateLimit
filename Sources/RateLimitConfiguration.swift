@@ -10,12 +10,15 @@ import Foundation
 import Kitura
 import SwiftyJSON
 
+public typealias KeyHandler = (RouterRequest) -> String
+
 public struct RateLimitConfig {
     
     let window: Int
     let maxRequests: Int
     let includeHeaders: Bool
     let handler: RouterHandler
+    let keyHandler: KeyHandler
     
     public static var defaultConfig: RateLimitConfig {
         return self.init()
@@ -24,7 +27,18 @@ public struct RateLimitConfig {
     public init(window: Int = 10,
         maxRequests: Int = 100,
         includeHeaders: Bool = true,
-        handler: @escaping RouterHandler = { request, response, next in
+        handler: @escaping RouterHandler = RateLimitConfig.defaultHandler,
+        keyHandler: @escaping KeyHandler = RateLimitConfig.defaultKeyHandler) {
+        
+        self.window = window
+        self.maxRequests = maxRequests
+        self.includeHeaders = includeHeaders
+        self.handler = handler
+        self.keyHandler = keyHandler
+    }
+    
+    public static var defaultHandler: RouterHandler = {
+        request, response, next in
         
         let message = "Too many requests"
         
@@ -36,14 +50,12 @@ public struct RateLimitConfig {
         }
         
         try response.status(.tooManyRequests).end()
+    }
+    
+    public static var defaultKeyHandler: KeyHandler = {
+        request in
         
-        }) {
-        
-        self.window = window
-        self.maxRequests = maxRequests
-        self.includeHeaders = includeHeaders
-        self.handler = handler
-        
+        return request.remoteAddress
     }
 
 }
