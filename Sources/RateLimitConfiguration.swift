@@ -10,7 +10,7 @@ import Foundation
 import Kitura
 import SwiftyJSON
 
-public typealias KeyHandler = (RouterRequest) -> String
+
 
 public struct RateLimitConfig {
     
