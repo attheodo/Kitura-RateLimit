@@ -18,6 +18,7 @@ public class RateLimit: RouterMiddleware {
     private var maxRequests: Int
     private var shouldIncludeHeaders: Bool
     private var handler: RouterHandler
+    private var keyHandler: KeyHandler
     
     /// A timer to flush the key-store every <window> seconds
     private var timer: DispatchSourceTimer?
@@ -35,6 +36,7 @@ public class RateLimit: RouterMiddleware {
         self.maxRequests = config.maxRequests
         self.shouldIncludeHeaders = config.includeHeaders
         self.handler = config.handler
+        self.keyHandler = config.keyHandler
         
         startFlushTimer()
     
@@ -53,7 +55,7 @@ public class RateLimit: RouterMiddleware {
     
     public func handle(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void) throws {
         
-        if let currentHits = keyStore.increment(key: request.remoteAddress) {
+        if let currentHits = keyStore.increment(key: keyHandler(request)) {
             
             if shouldIncludeHeaders {
                 
